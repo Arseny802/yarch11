@@ -2,11 +2,10 @@ name: Terraform CI/CD
 
 on:
   pull_request:
-    branches: [main, dev, stage, prod]
+    branches: [main, master, dev, stage, prod]
   workflow_dispatch: # Ручной запуск
 
 env:
-  TF_VERSION: "1.5.7"
   TF_ROOT: "Task1Advanced"
 
 jobs:
@@ -18,6 +17,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: ${{ env.TF_ROOT }}
 
     steps:
       - name: 🔹 Checkout repository
