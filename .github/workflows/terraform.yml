@@ -32,12 +32,11 @@ jobs:
       - name: 🔹 Cache Terraform init
         uses: actions/cache@v4
         with:
-          path: |-
-            ~/.terraform
-            envs/dev/.terraform
-            envs/stage/.terraform
-            envs/prod/.terraform
+          path: |
+            **/.terraform
           key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
 
       # ──────────────────────────────────────────────────────────────
       # Dev
@@ -45,7 +44,7 @@ jobs:
 
       - name: 🔹 Terraform Init (Dev)
         if: github.ref_name == 'dev'
-        working-directory: envs/dev
+        working-directory: ${{ env.TF_ROOT }}/envs/dev
         run: terraform init
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
@@ -53,12 +52,12 @@ jobs:
 
       - name: 🔹 Terraform Validate (Dev)
         if: github.ref_name == 'dev'
-        working-directory: envs/dev
+        working-directory: ${{ env.TF_ROOT }}/envs/dev
         run: terraform validate
 
       - name: 🔹 Terraform Plan (Dev)
         if: github.ref_name == 'dev'
-        working-directory: envs/dev
+        working-directory: ${{ env.TF_ROOT }}/envs/dev
         run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
         env:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
@@ -69,7 +68,7 @@ jobs:
 
       - name: 🔹 Terraform Apply (Dev)
         if: github.ref_name == 'dev' && github.event_name == 'workflow_dispatch'
-        working-directory: envs/dev
+        working-directory: ${{ env.TF_ROOT }}/envs/dev
         run: terraform apply -no-color tfplan
         env:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
@@ -93,7 +92,7 @@ jobs:
             echo "Warning: Some resources will be destroyed!"
             exit 1
           fi
-        working-directory: envs/dev
+        working-directory: ${{ env.TF_ROOT }}/envs/dev
 
       # ──────────────────────────────────────────────────────────────
       # STAGE
@@ -101,7 +100,7 @@ jobs:
 
       - name: 🔹 Terraform Init (Stage)
         if: github.ref_name == 'stage'
-        working-directory: envs/stage
+        working-directory: ${{ env.TF_ROOT }}/envs/stage
         run: terraform init
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
@@ -109,12 +108,12 @@ jobs:
 
       - name: 🔹 Terraform Validate (Stage)
         if: github.ref_name == 'stage'
-        working-directory: envs/stage
+        working-directory: ${{ env.TF_ROOT }}/envs/stage
         run: terraform validate
 
       - name: 🔹 Terraform Plan (Stage)
         if: github.ref_name == 'stage'
-        working-directory: envs/stage
+        working-directory: ${{ env.TF_ROOT }}/envs/stage
         run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
         env:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
@@ -125,7 +124,7 @@ jobs:
 
       - name: 🔹 Terraform Apply (Stage)
         if: github.ref_name == 'stage' && github.event_name == 'workflow_dispatch'
-        working-directory: envs/stage
+        working-directory: ${{ env.TF_ROOT }}/envs/stage
         run: terraform apply -no-color tfplan
         env:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
@@ -149,7 +148,7 @@ jobs:
             echo "Warning: Some resources will be destroyed!"
             exit 1
           fi
-        working-directory: envs/stage
+        working-directory: ${{ env.TF_ROOT }}/envs/stage
 
       # ──────────────────────────────────────────────────────────────
       # PROD
@@ -157,7 +156,7 @@ jobs:
 
       - name: 🔹 Terraform Init (Prod)
         if: github.ref_name == 'prod'
-        working-directory: envs/prod
+        working-directory: ${{ env.TF_ROOT }}/envs/prod
         run: terraform init
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
@@ -165,12 +164,12 @@ jobs:
 
       - name: 🔹 Terraform Validate (Prod)
         if: github.ref_name == 'prod'
-        working-directory: envs/prod
+        working-directory: ${{ env.TF_ROOT }}/envs/prod
         run: terraform validate
 
       - name: 🔹 Terraform Plan (Prod)
         if: github.ref_name == 'prod'
-        working-directory: envs/prod
+        working-directory: ${{ env.TF_ROOT }}/envs/prod
         run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
         env:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
@@ -181,7 +180,7 @@ jobs:
 
       - name: 🔹 Terraform Apply (Prod)
         if: github.ref_name == 'prod' && github.event_name == 'workflow_dispatch'
-        working-directory: envs/prod
+        working-directory: ${{ env.TF_ROOT }}/envs/prod
         run: terraform apply -no-color tfplan
         env:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
@@ -205,4 +204,4 @@ jobs:
             echo "Warning: Some resources will be destroyed!"
             exit 1
           fi
-        working-directory: envs/prod
+        working-directory: ${{ env.TF_ROOT }}/envs/prod
