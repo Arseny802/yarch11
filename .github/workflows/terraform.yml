@@ -43,7 +43,7 @@ jobs:
       # ──────────────────────────────────────────────────────────────
 
       - name: 🔹 Terraform Init (Dev)
-        if: github.ref_name == 'dev'
+        # if: github.ref_name == 'dev'
         working-directory: ${{ env.TF_ROOT }}/envs/dev
         run: terraform init
         env:
@@ -51,12 +51,12 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
       - name: 🔹 Terraform Validate (Dev)
-        if: github.ref_name == 'dev'
+        # if: github.ref_name == 'dev'
         working-directory: ${{ env.TF_ROOT }}/envs/dev
         run: terraform validate
 
       - name: 🔹 Terraform Plan (Dev)
-        if: github.ref_name == 'dev'
+        # if: github.ref_name == 'dev'
         working-directory: ${{ env.TF_ROOT }}/envs/dev
         run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
         env:
@@ -67,7 +67,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
       - name: 🔹 Terraform Apply (Dev)
-        if: github.ref_name == 'dev' && github.event_name == 'workflow_dispatch'
+        # if: github.ref_name == 'dev' && github.event_name == 'workflow_dispatch'
         working-directory: ${{ env.TF_ROOT }}/envs/dev
         run: terraform apply -no-color tfplan
         env:
@@ -78,7 +78,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
       - name: 🔹 Check for Destructive Changes (Dev)
-        if: github.ref_name == 'dev' && github.event_name == 'pull_request'
+        # if: github.ref_name == 'dev' && github.event_name == 'pull_request'
         run: |
           if terraform plan -detailed-exitcode -var-file=terraform.tfvars; then
             echo "No changes."
@@ -99,7 +99,7 @@ jobs:
       # ──────────────────────────────────────────────────────────────
 
       - name: 🔹 Terraform Init (Stage)
-        if: github.ref_name == 'stage'
+        # if: github.ref_name == 'stage'
         working-directory: ${{ env.TF_ROOT }}/envs/stage
         run: terraform init
         env:
@@ -107,12 +107,12 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
       - name: 🔹 Terraform Validate (Stage)
-        if: github.ref_name == 'stage'
+        # if: github.ref_name == 'stage'
         working-directory: ${{ env.TF_ROOT }}/envs/stage
         run: terraform validate
 
       - name: 🔹 Terraform Plan (Stage)
-        if: github.ref_name == 'stage'
+        # if: github.ref_name == 'stage'
         working-directory: ${{ env.TF_ROOT }}/envs/stage
         run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
         env:
@@ -123,7 +123,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
       - name: 🔹 Terraform Apply (Stage)
-        if: github.ref_name == 'stage' && github.event_name == 'workflow_dispatch'
+        # if: github.ref_name == 'stage' && github.event_name == 'workflow_dispatch'
         working-directory: ${{ env.TF_ROOT }}/envs/stage
         run: terraform apply -no-color tfplan
         env:
@@ -134,7 +134,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
       - name: 🔹 Check for Destructive Changes (Stage)
-        if: github.ref_name == 'stage' && github.event_name == 'pull_request'
+        # if: github.ref_name == 'stage' && github.event_name == 'pull_request'
         run: |
           if terraform plan -detailed-exitcode -var-file=terraform.tfvars; then
             echo "No changes."
@@ -155,7 +155,7 @@ jobs:
       # ──────────────────────────────────────────────────────────────
 
       - name: 🔹 Terraform Init (Prod)
-        if: github.ref_name == 'prod'
+        # if: github.ref_name == 'prod'
         working-directory: ${{ env.TF_ROOT }}/envs/prod
         run: terraform init
         env:
@@ -163,12 +163,12 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
       - name: 🔹 Terraform Validate (Prod)
-        if: github.ref_name == 'prod'
+        # if: github.ref_name == 'prod'
         working-directory: ${{ env.TF_ROOT }}/envs/prod
         run: terraform validate
 
       - name: 🔹 Terraform Plan (Prod)
-        if: github.ref_name == 'prod'
+        # if: github.ref_name == 'prod'
         working-directory: ${{ env.TF_ROOT }}/envs/prod
         run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
         env:
@@ -179,7 +179,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
       - name: 🔹 Terraform Apply (Prod)
-        if: github.ref_name == 'prod' && github.event_name == 'workflow_dispatch'
+        # if: github.ref_name == 'prod' && github.event_name == 'workflow_dispatch'
         working-directory: ${{ env.TF_ROOT }}/envs/prod
         run: terraform apply -no-color tfplan
         env:
@@ -190,7 +190,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
       - name: 🔹 Check for Destructive Changes (Prod)
-        if: github.ref_name == 'prod' && github.event_name == 'pull_request'
+        # if: github.ref_name == 'prod' && github.event_name == 'pull_request'
         run: |
           if terraform plan -detailed-exitcode -var-file=terraform.tfvars; then
             echo "No changes."
