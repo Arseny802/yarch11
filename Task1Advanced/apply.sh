@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source aws_secrets.sh
+
 function terraform_apply {
   path_to=$1
   path_init=$PWD

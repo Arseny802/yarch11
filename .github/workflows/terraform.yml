@@ -58,11 +58,19 @@ jobs:
       - name: 🔹 Terraform Plan (Dev)
         # if: github.ref_name == 'dev'
         working-directory: ${{ env.TF_ROOT }}/envs/dev
-        run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
+        run: terraform plan -no-color -out=tfplan
         env:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
           TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
           TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
+          TF_VAR_vm_name: "dev-vm"
+          TF_VAR_cores: 2
+          TF_VAR_memory: 4
+          TF_VAR_disk_size: 20
+          TF_VAR_subnet_id: ${{ secrets.YC_SUBNET_ID }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_environment: "dev"
+          TF_VAR_labels: '{ env = "dev" }'
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
@@ -80,17 +88,16 @@ jobs:
       - name: 🔹 Check for Destructive Changes (Dev)
         # if: github.ref_name == 'dev' && github.event_name == 'pull_request'
         run: |
-          if terraform plan -detailed-exitcode -var-file=terraform.tfvars; then
-            echo "No changes."
-          elif [ $? -eq 2 ]; then
-            echo "Changes detected."
-          else
+          if [ ! -f tfplan ]; then
+            echo "No plan file found. Skipping destructive check."
             exit 1
           fi
 
-          if terraform plan -no-color -var-file=terraform.tfvars | grep '^-'; then
-            echo "Warning: Some resources will be destroyed!"
+          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions[] == "delete")' > /dev/null; then
+            echo "❌ Error: This plan deletes resources. Manual approval required."
             exit 1
+          else
+            echo "✅ No destructive changes detected."
           fi
         working-directory: ${{ env.TF_ROOT }}/envs/dev
 
@@ -114,11 +121,19 @@ jobs:
       - name: 🔹 Terraform Plan (Stage)
         # if: github.ref_name == 'stage'
         working-directory: ${{ env.TF_ROOT }}/envs/stage
-        run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
+        run: terraform plan -no-color -out=tfplan
         env:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
           TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
           TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
+          TF_VAR_vm_name: "stage-vm"
+          TF_VAR_cores: 2
+          TF_VAR_memory: 4
+          TF_VAR_disk_size: 20
+          TF_VAR_subnet_id: ${{ secrets.YC_SUBNET_ID }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_environment: "stage"
+          TF_VAR_labels: '{ env = "stage" }'
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
@@ -136,17 +151,16 @@ jobs:
       - name: 🔹 Check for Destructive Changes (Stage)
         # if: github.ref_name == 'stage' && github.event_name == 'pull_request'
         run: |
-          if terraform plan -detailed-exitcode -var-file=terraform.tfvars; then
-            echo "No changes."
-          elif [ $? -eq 2 ]; then
-            echo "Changes detected."
-          else
+          if [ ! -f tfplan ]; then
+            echo "No plan file found. Skipping destructive check."
             exit 1
           fi
 
-          if terraform plan -no-color -var-file=terraform.tfvars | grep '^-'; then
-            echo "Warning: Some resources will be destroyed!"
+          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions[] == "delete")' > /dev/null; then
+            echo "❌ Error: This plan deletes resources. Manual approval required."
             exit 1
+          else
+            echo "✅ No destructive changes detected."
           fi
         working-directory: ${{ env.TF_ROOT }}/envs/stage
 
@@ -170,11 +184,19 @@ jobs:
       - name: 🔹 Terraform Plan (Prod)
         # if: github.ref_name == 'prod'
         working-directory: ${{ env.TF_ROOT }}/envs/prod
-        run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
+        run: terraform plan -no-color -out=tfplan
         env:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
           TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
           TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
+          TF_VAR_vm_name: "prod-vm"
+          TF_VAR_cores: 2
+          TF_VAR_memory: 4
+          TF_VAR_disk_size: 20
+          TF_VAR_subnet_id: ${{ secrets.YC_SUBNET_ID }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_environment: "prod"
+          TF_VAR_labels: '{ env = "prod" }'
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
@@ -192,16 +214,15 @@ jobs:
       - name: 🔹 Check for Destructive Changes (Prod)
         # if: github.ref_name == 'prod' && github.event_name == 'pull_request'
         run: |
-          if terraform plan -detailed-exitcode -var-file=terraform.tfvars; then
-            echo "No changes."
-          elif [ $? -eq 2 ]; then
-            echo "Changes detected."
-          else
+          if [ ! -f tfplan ]; then
+            echo "No plan file found. Skipping destructive check."
             exit 1
           fi
 
-          if terraform plan -no-color -var-file=terraform.tfvars | grep '^-'; then
-            echo "Warning: Some resources will be destroyed!"
+          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions[] == "delete")' > /dev/null; then
+            echo "❌ Error: This plan deletes resources. Manual approval required."
             exit 1
+          else
+            echo "✅ No destructive changes detected."
           fi
         working-directory: ${{ env.TF_ROOT }}/envs/prod
