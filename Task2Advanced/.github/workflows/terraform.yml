@@ -1,0 +1,208 @@
+name: Terraform CI/CD
+
+on:
+  pull_request:
+    branches: [main, dev, stage, prod]
+  workflow_dispatch: # Ручной запуск
+
+env:
+  TF_VERSION: "1.5.7"
+  TF_ROOT: "Task1Advanced"
+
+jobs:
+  terraform:
+    name: Terraform Workflow
+    runs-on: ubuntu-latest
+    concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: 🔹 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔹 Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.0
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: 🔹 Cache Terraform init
+        uses: actions/cache@v4
+        with:
+          path: |-
+            ~/.terraform
+            envs/dev/.terraform
+            envs/stage/.terraform
+            envs/prod/.terraform
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+
+      # ──────────────────────────────────────────────────────────────
+      # Dev
+      # ──────────────────────────────────────────────────────────────
+
+      - name: 🔹 Terraform Init (Dev)
+        if: github.ref_name == 'dev'
+        working-directory: envs/dev
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
+
+      - name: 🔹 Terraform Validate (Dev)
+        if: github.ref_name == 'dev'
+        working-directory: envs/dev
+        run: terraform validate
+
+      - name: 🔹 Terraform Plan (Dev)
+        if: github.ref_name == 'dev'
+        working-directory: envs/dev
+        run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
+        env:
+          TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
+          TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
+          TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
+
+      - name: 🔹 Terraform Apply (Dev)
+        if: github.ref_name == 'dev' && github.event_name == 'workflow_dispatch'
+        working-directory: envs/dev
+        run: terraform apply -no-color tfplan
+        env:
+          TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
+          TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
+          TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
+
+      - name: 🔹 Check for Destructive Changes (Dev)
+        if: github.ref_name == 'dev' && github.event_name == 'pull_request'
+        run: |
+          if terraform plan -detailed-exitcode -var-file=terraform.tfvars; then
+            echo "No changes."
+          elif [ $? -eq 2 ]; then
+            echo "Changes detected."
+          else
+            exit 1
+          fi
+
+          if terraform plan -no-color -var-file=terraform.tfvars | grep '^-'; then
+            echo "Warning: Some resources will be destroyed!"
+            exit 1
+          fi
+        working-directory: envs/dev
+
+      # ──────────────────────────────────────────────────────────────
+      # STAGE
+      # ──────────────────────────────────────────────────────────────
+
+      - name: 🔹 Terraform Init (Stage)
+        if: github.ref_name == 'stage'
+        working-directory: envs/stage
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
+
+      - name: 🔹 Terraform Validate (Stage)
+        if: github.ref_name == 'stage'
+        working-directory: envs/stage
+        run: terraform validate
+
+      - name: 🔹 Terraform Plan (Stage)
+        if: github.ref_name == 'stage'
+        working-directory: envs/stage
+        run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
+        env:
+          TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
+          TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
+          TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
+
+      - name: 🔹 Terraform Apply (Stage)
+        if: github.ref_name == 'stage' && github.event_name == 'workflow_dispatch'
+        working-directory: envs/stage
+        run: terraform apply -no-color tfplan
+        env:
+          TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
+          TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
+          TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
+
+      - name: 🔹 Check for Destructive Changes (Stage)
+        if: github.ref_name == 'stage' && github.event_name == 'pull_request'
+        run: |
+          if terraform plan -detailed-exitcode -var-file=terraform.tfvars; then
+            echo "No changes."
+          elif [ $? -eq 2 ]; then
+            echo "Changes detected."
+          else
+            exit 1
+          fi
+
+          if terraform plan -no-color -var-file=terraform.tfvars | grep '^-'; then
+            echo "Warning: Some resources will be destroyed!"
+            exit 1
+          fi
+        working-directory: envs/stage
+
+      # ──────────────────────────────────────────────────────────────
+      # PROD
+      # ──────────────────────────────────────────────────────────────
+
+      - name: 🔹 Terraform Init (Prod)
+        if: github.ref_name == 'prod'
+        working-directory: envs/prod
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
+
+      - name: 🔹 Terraform Validate (Prod)
+        if: github.ref_name == 'prod'
+        working-directory: envs/prod
+        run: terraform validate
+
+      - name: 🔹 Terraform Plan (Prod)
+        if: github.ref_name == 'prod'
+        working-directory: envs/prod
+        run: terraform plan -no-color -out=tfplan -var-file=terraform.tfvars
+        env:
+          TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
+          TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
+          TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
+
+      - name: 🔹 Terraform Apply (Prod)
+        if: github.ref_name == 'prod' && github.event_name == 'workflow_dispatch'
+        working-directory: envs/prod
+        run: terraform apply -no-color tfplan
+        env:
+          TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
+          TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
+          TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
+
+      - name: 🔹 Check for Destructive Changes (Prod)
+        if: github.ref_name == 'prod' && github.event_name == 'pull_request'
+        run: |
+          if terraform plan -detailed-exitcode -var-file=terraform.tfvars; then
+            echo "No changes."
+          elif [ $? -eq 2 ]; then
+            echo "Changes detected."
+          else
+            exit 1
+          fi
+
+          if terraform plan -no-color -var-file=terraform.tfvars | grep '^-'; then
+            echo "Warning: Some resources will be destroyed!"
+            exit 1
+          fi
+        working-directory: envs/prod
