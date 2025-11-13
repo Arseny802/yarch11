@@ -1,6 +1,6 @@
 # Общие параметры ВМ
 variable "vm_name" {
-  type        = string
+  type = string
 }
 
 variable "cores" {
@@ -39,7 +39,7 @@ variable "environment" {
 }
 
 variable "labels" {
-  type    = map(string)
+  type = map(string)
   default = {
     env = "dev"
   }

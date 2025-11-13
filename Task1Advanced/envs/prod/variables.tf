@@ -1,6 +1,6 @@
 # Общие параметры ВМ
 variable "vm_name" {
-  type        = string
+  type = string
 }
 
 variable "cores" {
@@ -35,13 +35,13 @@ variable "image_family" {
 
 variable "environment" {
   type    = string
-  default = "dev"
+  default = "prod"
 }
 
 variable "labels" {
-  type    = map(string)
+  type = map(string)
   default = {
-    env = "dev"
+    env = "prod"
   }
 }
 
