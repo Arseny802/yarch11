@@ -24,7 +24,7 @@ resource "yandex_compute_disk" "vm_disk" {
 }
 
 resource "yandex_compute_instance" "vm" {
-  name = var.vm_name
+  name = "${var.vm_name}-${substr(uuid(), 0, 8)}"
   zone = var.zone
 
   resources {
