@@ -15,8 +15,6 @@ function terraform_destroy {
   cd $path_init
   if [ $retVal -ne 0 ]; then
     exit $retVal
-  else
-    echo "OK"
   fi
 }
 

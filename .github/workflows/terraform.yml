@@ -63,10 +63,10 @@ jobs:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
           TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
           TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
-          TF_VAR_vm_name: "dev-vm"
+          TF_VAR_vm_name: "yarch11-dev"
           TF_VAR_cores: 2
-          TF_VAR_memory: 4
-          TF_VAR_disk_size: 20
+          TF_VAR_memory: 2
+          TF_VAR_disk_size: 10
           TF_VAR_subnet_id: ${{ secrets.YC_SUBNET_ID }}
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
           TF_VAR_environment: "dev"
@@ -132,10 +132,10 @@ jobs:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
           TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
           TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
-          TF_VAR_vm_name: "stage-vm"
-          TF_VAR_cores: 2
-          TF_VAR_memory: 4
-          TF_VAR_disk_size: 20
+          TF_VAR_vm_name: "yarch11-stage"
+          TF_VAR_cores: 6
+          TF_VAR_memory: 6
+          TF_VAR_disk_size: 30
           TF_VAR_subnet_id: ${{ secrets.YC_SUBNET_ID }}
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
           TF_VAR_environment: "stage"
@@ -201,8 +201,8 @@ jobs:
           TF_VAR_yandex_token: ${{ secrets.YC_TOKEN }}
           TF_VAR_cloud_id: ${{ secrets.YC_CLOUD_ID }}
           TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
-          TF_VAR_vm_name: "prod-vm"
-          TF_VAR_cores: 2
+          TF_VAR_vm_name: "yarch11-prod"
+          TF_VAR_cores: 4
           TF_VAR_memory: 4
           TF_VAR_disk_size: 20
           TF_VAR_subnet_id: ${{ secrets.YC_SUBNET_ID }}
