@@ -11,8 +11,12 @@ data "yandex_compute_image" "ubuntu" {
   family = var.image_family
 }
 
+resource "random_id" "suffix" {
+  byte_length = 4
+}
+
 resource "yandex_compute_disk" "vm_disk" {
-  name     = "${var.vm_name}-disk"
+  name     = "${var.vm_name}-disk-${random_id.suffix.hex}"
   type     = var.disk_type
   zone     = var.zone
   image_id = data.yandex_compute_image.ubuntu.image_id
@@ -20,8 +24,8 @@ resource "yandex_compute_disk" "vm_disk" {
 }
 
 resource "yandex_compute_instance" "vm" {
-  name        = var.vm_name
-  zone        = var.zone
+  name = var.vm_name
+  zone = var.zone
 
   resources {
     cores  = var.cores
