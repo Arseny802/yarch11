@@ -5,7 +5,7 @@ terraform {
     }
     bucket = "yarch11-backet"
     region = "ru-central1"
-    key    = "stage/vm.tfstate"
+    key    = "prod/vm.tfstate"
 
     skip_region_validation      = true
     skip_credentials_validation = true
