@@ -74,6 +74,28 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
+      - name: 🔹 Check for Destructive Changes (Dev)
+        # if: github.ref_name == 'dev' && github.event_name == 'pull_request'
+        run: |
+          if [ ! -f tfplan ]; then
+            echo "No plan file found. Skipping destructive check."
+            exit 1
+          fi
+
+          deletions=$(terraform show -json tfplan | jq -r '
+            .resource_changes[]
+            | select(.change.actions == ["delete"] and (.change.actions | length) == 1)
+            | .address
+          ')
+          if [ -n "$deletions" ]; then
+            echo "❌ Error: This plan deletes resources. Manual approval required."
+            echo "Details: $deletions"
+            exit 1
+          else
+            echo "✅ No destructive changes detected."
+          fi
+        working-directory: ${{ env.TF_ROOT }}/envs/dev
+
       - name: 🔹 Terraform Apply (Dev)
         # if: github.ref_name == 'dev' && github.event_name == 'workflow_dispatch'
         working-directory: ${{ env.TF_ROOT }}/envs/dev
@@ -84,24 +106,6 @@ jobs:
           TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
-
-      - name: 🔹 Check for Destructive Changes (Dev)
-        # if: github.ref_name == 'dev' && github.event_name == 'pull_request'
-        run: |
-          if [ ! -f tfplan ]; then
-            echo "No plan file found. Skipping destructive check."
-            exit 1
-          fi
-
-          deletions=$(terraform show -json tfplan | jq -r '.resource_changes[] | select(.change.actions == ["delete"]) | .address')
-          if [ -n "$deletions" ]; then
-            echo "❌ Error: This plan deletes resources. Manual approval required."
-            echo "Details: $deletions"
-            exit 1
-          else
-            echo "✅ No destructive changes detected."
-          fi
-        working-directory: ${{ env.TF_ROOT }}/envs/dev
 
       # ──────────────────────────────────────────────────────────────
       # STAGE
@@ -139,6 +143,28 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
+      - name: 🔹 Check for Destructive Changes (Stage)
+        # if: github.ref_name == 'stage' && github.event_name == 'pull_request'
+        run: |
+          if [ ! -f tfplan ]; then
+            echo "No plan file found. Skipping destructive check."
+            exit 1
+          fi
+
+          deletions=$(terraform show -json tfplan | jq -r '
+            .resource_changes[]
+            | select(.change.actions == ["delete"] and (.change.actions | length) == 1)
+            | .address
+          ')
+          if [ -n "$deletions" ]; then
+            echo "❌ Error: This plan deletes resources. Manual approval required."
+            echo "Details: $deletions"
+            exit 1
+          else
+            echo "✅ No destructive changes detected."
+          fi
+        working-directory: ${{ env.TF_ROOT }}/envs/stage
+
       - name: 🔹 Terraform Apply (Stage)
         # if: github.ref_name == 'stage' && github.event_name == 'workflow_dispatch'
         working-directory: ${{ env.TF_ROOT }}/envs/stage
@@ -149,24 +175,6 @@ jobs:
           TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
-
-      - name: 🔹 Check for Destructive Changes (Stage)
-        # if: github.ref_name == 'stage' && github.event_name == 'pull_request'
-        run: |
-          if [ ! -f tfplan ]; then
-            echo "No plan file found. Skipping destructive check."
-            exit 1
-          fi
-
-          deletions=$(terraform show -json tfplan | jq -r '.resource_changes[] | select(.change.actions == ["delete"]) | .address')
-          if [ -n "$deletions" ]; then
-            echo "❌ Error: This plan deletes resources. Manual approval required."
-            echo "Details: $deletions"
-            exit 1
-          else
-            echo "✅ No destructive changes detected."
-          fi
-        working-directory: ${{ env.TF_ROOT }}/envs/stage
 
       # ──────────────────────────────────────────────────────────────
       # PROD
@@ -204,6 +212,28 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
+      - name: 🔹 Check for Destructive Changes (Prod)
+        # if: github.ref_name == 'prod' && github.event_name == 'pull_request'
+        run: |
+          if [ ! -f tfplan ]; then
+            echo "No plan file found. Skipping destructive check."
+            exit 1
+          fi
+
+          deletions=$(terraform show -json tfplan | jq -r '
+            .resource_changes[]
+            | select(.change.actions == ["delete"] and (.change.actions | length) == 1)
+            | .address
+          ')
+          if [ -n "$deletions" ]; then
+            echo "❌ Error: This plan deletes resources. Manual approval required."
+            echo "Details: $deletions"
+            exit 1
+          else
+            echo "✅ No destructive changes detected."
+          fi
+        working-directory: ${{ env.TF_ROOT }}/envs/prod
+
       - name: 🔹 Terraform Apply (Prod)
         # if: github.ref_name == 'prod' && github.event_name == 'workflow_dispatch'
         working-directory: ${{ env.TF_ROOT }}/envs/prod
@@ -214,21 +244,3 @@ jobs:
           TF_VAR_folder_id: ${{ secrets.YC_FOLDER_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
-
-      - name: 🔹 Check for Destructive Changes (Prod)
-        # if: github.ref_name == 'prod' && github.event_name == 'pull_request'
-        run: |
-          if [ ! -f tfplan ]; then
-            echo "No plan file found. Skipping destructive check."
-            exit 1
-          fi
-
-          deletions=$(terraform show -json tfplan | jq -r '.resource_changes[] | select(.change.actions == ["delete"]) | .address')
-          if [ -n "$deletions" ]; then
-            echo "❌ Error: This plan deletes resources. Manual approval required."
-            echo "Details: $deletions"
-            exit 1
-          else
-            echo "✅ No destructive changes detected."
-          fi
-        working-directory: ${{ env.TF_ROOT }}/envs/prod
