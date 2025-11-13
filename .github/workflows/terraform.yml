@@ -93,8 +93,10 @@ jobs:
             exit 1
           fi
 
-          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions == ["delete"])' > /dev/null; then
+          deletions=$(terraform show -json tfplan | jq -r '.resource_changes[] | select(.change.actions == ["delete"]) | .address')
+          if [ -n "$deletions" ]; then
             echo "❌ Error: This plan deletes resources. Manual approval required."
+            echo "Details: $deletions"
             exit 1
           else
             echo "✅ No destructive changes detected."
@@ -156,8 +158,10 @@ jobs:
             exit 1
           fi
 
-          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions == ["delete"])' > /dev/null; then
+          deletions=$(terraform show -json tfplan | jq -r '.resource_changes[] | select(.change.actions == ["delete"]) | .address')
+          if [ -n "$deletions" ]; then
             echo "❌ Error: This plan deletes resources. Manual approval required."
+            echo "Details: $deletions"
             exit 1
           else
             echo "✅ No destructive changes detected."
@@ -219,8 +223,10 @@ jobs:
             exit 1
           fi
 
-          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions == ["delete"])' > /dev/null; then
+          deletions=$(terraform show -json tfplan | jq -r '.resource_changes[] | select(.change.actions == ["delete"]) | .address')
+          if [ -n "$deletions" ]; then
             echo "❌ Error: This plan deletes resources. Manual approval required."
+            echo "Details: $deletions"
             exit 1
           else
             echo "✅ No destructive changes detected."
