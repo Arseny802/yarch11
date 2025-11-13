@@ -97,6 +97,7 @@ jobs:
         working-directory: ${{ env.TF_ROOT }}/envs/dev
 
       - name: 🔹 Terraform Apply (Dev)
+        # Uncomment on release: need to be working with 3 git branches
         # if: github.ref_name == 'dev' && github.event_name == 'workflow_dispatch'
         working-directory: ${{ env.TF_ROOT }}/envs/dev
         run: terraform apply -no-color tfplan
@@ -144,7 +145,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
       - name: 🔹 Check for Destructive Changes (Stage)
-        # if: github.ref_name == 'stage' && github.event_name == 'pull_request'
+        if: github.ref_name == 'stage' && github.event_name == 'pull_request'
         run: |
           if [ ! -f tfplan ]; then
             echo "No plan file found. Skipping destructive check."
@@ -213,7 +214,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_KEY }}
 
       - name: 🔹 Check for Destructive Changes (Prod)
-        # if: github.ref_name == 'prod' && github.event_name == 'pull_request'
+        if: github.ref_name == 'prod' && github.event_name == 'pull_request'
         run: |
           if [ ! -f tfplan ]; then
             echo "No plan file found. Skipping destructive check."
