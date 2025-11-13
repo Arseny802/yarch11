@@ -93,7 +93,7 @@ jobs:
             exit 1
           fi
 
-          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions[] == "delete")' > /dev/null; then
+          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions == ["delete"])' > /dev/null; then
             echo "❌ Error: This plan deletes resources. Manual approval required."
             exit 1
           else
@@ -156,7 +156,7 @@ jobs:
             exit 1
           fi
 
-          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions[] == "delete")' > /dev/null; then
+          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions == ["delete"])' > /dev/null; then
             echo "❌ Error: This plan deletes resources. Manual approval required."
             exit 1
           else
@@ -219,7 +219,7 @@ jobs:
             exit 1
           fi
 
-          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions[] == "delete")' > /dev/null; then
+          if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions == ["delete"])' > /dev/null; then
             echo "❌ Error: This plan deletes resources. Manual approval required."
             exit 1
           else
